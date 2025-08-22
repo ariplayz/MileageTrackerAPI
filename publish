@@ -30,7 +30,7 @@ while true; do
     if [ "$LAST_HASH" != "$NEW_HASH" ]; then
         echo "Changes detected. Pulling and restarting API..."
         git pull
-        pkill -f "dotnet run"
+        echo "$SUDOPASS" | sudo -S pkill -f "dotnet run"
         cd "$API_PATH" || exit 1
         echo "$SUDOPASS" | sudo -S nohup dotnet run &
         LAST_HASH=$(git rev-parse HEAD)
