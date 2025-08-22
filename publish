@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the path to your Git repository (one folder up from the current directory)
-PID_FILE=".npm_preview_pid"
+PID_FILE=".dotnet_pid"
 PORT=80
 
 # Function to start the npm preview
