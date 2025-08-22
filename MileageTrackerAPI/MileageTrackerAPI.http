@@ -1,0 +1,6 @@
+@MileageTrackerAPI_HostAddress = http://localhost:5219
+
+GET {{MileageTrackerAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
