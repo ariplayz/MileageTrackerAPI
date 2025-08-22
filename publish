@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Set the path to your Git repository (one folder up from the current directory)
+PID_FILE=".npm_preview_pid"
+PORT=8080
+
+# Function to start the npm preview
+start_preview() {
+    echo "Starting the web project with 'npm run preview'..."
+    npm run dev & echo $! > "$PID_FILE"
+}
+
+kill_process_using_port() {
+    echo "Killing any process using port $PORT..."
+    lsof -t -i:$PORT | xargs -r kill -9
+}
+#hi
+
+# Function to stop the npm preview
+stop_preview() {
+    if [ -f "$PID_FILE" ]; then
+        npm_pid=$(cat "$PID_FILE")
+        if ps -p "$npm_pid" > /dev/null; then
+            echo "Stopping old npm process with PID: $npm_pid"
+            kill -9 "$npm_pid"
+            rm "$PID_FILE"
+            sleep 2  # Wait for the process to terminate
+        fi
+    fi
+}
+
+cleanup() {
+    echo "Cleaning up..."
+    stop_preview
+    exit 0
+}
+
+kill_all_npm_processes() {
+    echo "Killing all npm processes..."
+    pkill -f "npm"
+}
+
+kill_all_npm_processes
+kill_process_using_port
+npm run dev & echo $! > "$PID_FILE"
+
+trap cleanup SIGINT
+
+# Infinite loop to check for updates
+while true; do
+    # Fetch the latest changes from the remote repository
+    git fetch
+
+    # Check if there are any changes to pull
+    if [ $(git rev-list HEAD...origin/main --count) -gt 0 ]; then
+        echo "Changes detected. Pulling updates..."
+
+        # Stop the old npm process
+        stop_preview
+
+        # Pull the latest changes
+        git pull
+
+        # Install any new dependencies (optional)
+        npm install
+
+        kill_all_npm_processes
+        kill_process_using_port
+
+        # Start the web project using npm run preview
+        #
+        start_preview
+    else
+        echo "No changes detected."
+    fi
+
+    # Wait for 5 seconds before checking again
+    sleep 60
+done
