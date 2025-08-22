@@ -20,7 +20,7 @@ cleanup() {
     stop_preview
     exit 0
 }
-
+cd MileageTrackerAPI
 dotnet run
 
 trap cleanup SIGINT
