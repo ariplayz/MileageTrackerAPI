@@ -18,6 +18,11 @@ public class Program
                 new MySqlServerVersion(new Version(10, 5))
             )
         );
+        
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(80); // Replace 5219 with your desired port if needed
+        });
 
         var app = builder.Build();
 
