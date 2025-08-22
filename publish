@@ -38,4 +38,5 @@ while true; do
         echo "API Updated and Restarted."
     fi
     sleep $CHECK_INTERVAL
+    echo "No changes found."
 done
