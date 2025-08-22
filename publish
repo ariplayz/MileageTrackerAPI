@@ -1,51 +1,23 @@
 #!/bin/bash
-#h
-# Set the path to your Git repository (one folder up from the current directory)
-PID_FILE=".dotnet_pid"
-PORT=80
 
-# Function to start the npm preview
-start_preview() {
-    echo "Starting the web project with 'dotnet run'..."
-    dotnet run & echo $! > "$PID_FILE"
-}
+REPO_PATH="/home/aric/MileageTrackerAPI"
+API_PATH="$REPO_PATH/MileageTrackerAPI"
+CHECK_INTERVAL=10
 
-stop_preview() {
-    dotnet_pid=$(cat "$PID_FILE")
-    kill -INT $dotnet_pid
-}
+cd "$REPO_PATH" || exit 1
 
-cleanup() {
-    echo "Cleaning up..."
-    stop_preview
-    exit 0
-}
-cd MileageTrackerAPI
-dotnet run
+LAST_HASH=$(git rev-parse HEAD)
 
-trap cleanup SIGINT
-
-# Infinite loop to check for updates
 while true; do
-    # Fetch the latest changes from the remote repository
-    git fetch
-
-    # Check if there are any changes to pull
-    if [ $(git rev-list HEAD...origin/main --count) -gt 0 ]; then
-        echo "Changes detected. Pulling updates..."
-
-        # Stop the old npm process
-        stop_preview
-
-        # Pull the latest changes
+    git fetch origin
+    NEW_HASH=$(git rev-parse origin/master)
+    if [ "$LAST_HASH" != "$NEW_HASH" ]; then
+        echo "Changes detected. Pulling and restarting API..."
         git pull
-        # Start the web project using dotnet run
-        #
-        start_preview
-    else
-        echo "No changes detected."
+        pkill -f "dotnet run" # Kill any running dotnet run
+        cd "$API_PATH" || exit 1
+        nohup dotnet run & # Start API in background
+        LAST_HASH=$(git rev-parse HEAD)
     fi
-
-    # Wait for 5 seconds before checking again
-    sleep 60
+    sleep $CHECK_INTERVAL
 done
