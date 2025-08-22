@@ -6,6 +6,16 @@ CHECK_INTERVAL=10
 
 cd "$REPO_PATH" || exit 1
 
+echo "****************************************"
+echo "API Engine Started"
+echo "This script will check for new changes every 10 seconds."
+echo "Starting API..."
+
+git fetch origin
+git pull
+
+nohup dotnet run
+
 LAST_HASH=$(git rev-parse HEAD)
 
 while true; do
