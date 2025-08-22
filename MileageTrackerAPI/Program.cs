@@ -37,6 +37,12 @@ public class Program
             await db.SaveChangesAsync();
             return Results.Ok(new { session.Id, session.LinkingCode });
         });
+        
+        app.MapGet("/logs/all", async (MileageDbContext db) =>
+        {
+            var logs = await db.MileageLogs.ToListAsync();
+            return Results.Ok(logs);
+        });
 
         app.MapPost("/sync/join", async (string code, MileageDbContext db) =>
         {
