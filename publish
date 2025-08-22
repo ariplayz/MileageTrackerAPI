@@ -14,7 +14,9 @@ echo "Starting API..."
 git fetch origin
 git pull
 
+cd "$API_PATH"
 nohup dotnet run
+cd ..
 
 LAST_HASH=$(git rev-parse HEAD)
 
@@ -28,6 +30,8 @@ while true; do
         cd "$API_PATH" || exit 1
         nohup dotnet run & # Start API in background
         LAST_HASH=$(git rev-parse HEAD)
+        cd ..
+        echo "API Updated and Restarted."
     fi
     sleep $CHECK_INTERVAL
 done
