@@ -1,5 +1,5 @@
 #!/bin/bash
-#hi
+#h
 # Set the path to your Git repository (one folder up from the current directory)
 PID_FILE=".dotnet_pid"
 PORT=80
