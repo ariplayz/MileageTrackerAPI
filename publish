@@ -8,14 +8,18 @@ cd "$REPO_PATH" || exit 1
 
 echo "****************************************"
 echo "API Engine Started"
+echo "Elevated Permissions needed for API start"
 echo "This script will check for new changes every 10 seconds."
 echo "Starting API..."
+
+read -s -p "Enter sudo password: " SUDOPASS
+echo
 
 git fetch origin
 git pull
 
 cd "$API_PATH" || exit 1
-nohup dotnet run
+echo "$SUDOPASS" | sudo -S nohup dotnet run &
 cd .. || exit 1
 
 LAST_HASH=$(git rev-parse HEAD)
@@ -26,9 +30,9 @@ while true; do
     if [ "$LAST_HASH" != "$NEW_HASH" ]; then
         echo "Changes detected. Pulling and restarting API..."
         git pull
-        pkill -f "dotnet run" # Kill any running dotnet run
+        pkill -f "dotnet run"
         cd "$API_PATH" || exit 1
-        nohup dotnet run & # Start API in background
+        echo "$SUDOPASS" | sudo -S nohup dotnet run &
         LAST_HASH=$(git rev-parse HEAD)
         cd .. || exit 1
         echo "API Updated and Restarted."
