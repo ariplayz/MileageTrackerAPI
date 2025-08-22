@@ -19,6 +19,16 @@ public class Program
             )
         );
         
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+        
         builder.WebHost.ConfigureKestrel(options =>
         {
             options.ListenAnyIP(80); // Replace 5219 with your desired port if needed
@@ -33,6 +43,7 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseAuthorization();
+        app.UseCors("AllowAll"); // Add this before endpoint mappings
 
         app.MapPost("/sync/create", async (MileageDbContext db) =>
         {
